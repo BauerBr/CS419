@@ -142,27 +142,44 @@ x = 0
 
 
 def menu():
+	screen.border(0)
 	screen.nodelay(0)
 	selection = -1
 	option = 0
 	while selection  < 0:
 		graphics = [0]*5
 		graphics[option] = curses.A_REVERSE
-		screen.addstr(dims[0]/2-3, dims[1]/2-2, 'Test', graphics[0])
-		screen.addstr(dims[0]/2-2, dims[1]/2-2, 'Test',graphics[1])
-		screen.addstr(dims[0]/2-1, dims[1]/2-2, 'Test',graphics[2])
-		screen.addstr(dims[0]/2, dims[1]/2-2, 'Test',graphics[3])
+		screen.addstr(dims[0]/2-4, dims[1]/2-2, 'Main menu',)
+		screen.addstr(dims[0]/2-3, dims[1]/2-2, 'Log In', graphics[0])
+		screen.addstr(dims[0]/2-2, dims[1]/2-2, 'Log Out',graphics[1])
+		screen.addstr(dims[0]/2-1, dims[1]/2-2, 'SubMenu',graphics[2])
+		screen.addstr(dims[0]/2, dims[1]/2-2, 'Exit',graphics[3])
 		screen.refresh()
 		action = screen.getch()
 		if action == curses.KEY_UP:
 			option = (option - 1) % 4
 		elif action == curses.KEY_DOWN:
 			option = (option + 1) % 4
-		elif action == (ord('\n'):
+		elif action == (ord('\n')):
 			selection = option
 		screen.clear()
-		if selection == 0
-	curses.endwin()
+		if selection == 0:
+			curses.endwin()
+			login()
+			raw_input("Press enter")
+			print ""
+			curses.endwin()
+			menu()
+		elif selection == 1:
+			curses.endwin()
+			logout()
+			print ""
+			curses.endwin()
+			menu()
+		elif selection == 2:
+			submenu()
+		else:
+			curses.endwin()
 
 
 screen = curses.initscr()
