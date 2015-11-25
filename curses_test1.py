@@ -4,6 +4,8 @@ import database_queries
 from os import system
 import curses
 
+
+
 def get_param(prompt_string):
 	screen.clear()
 	screen.border(0)
@@ -59,10 +61,12 @@ def logout():
 	print 'Attempt to disconnect...',
 	'''
 	con = database_queries.dbClose(con) # Attempt to close connection
+
 	if con['state'] == 1: # Detect if connection state is closed
   		print 'You have been logged out!',
 	elif con['state'] == 0: # Connection still exists (or atleast the state indicates that!)
   		print 'Log Out Failed',
+
 	if VERBOSE:
   		print '[' + con['msg'] + ']' # Print associated debug message 
 	print '\n'
@@ -135,42 +139,50 @@ def submenu():
 
 x = 0
 
-while x != ord('4'):
-	screen = curses.initscr()
 
-	screen.clear()
+
+def menu():
 	screen.border(0)
-	screen.addstr(2, 2, "Main Menu...")
-	screen.addstr(3, 2, "Please enter a number...")
-	screen.addstr(4, 4, "1 - Log In")
-	screen.addstr(5, 4, "2 - Submenu TO BE MOVED")
-	screen.addstr(6, 4, "3 - Log Out")
-	screen.addstr(7, 4, "4 - Exit")
-	screen.refresh()
+	screen.nodelay(0)
+	selection = -1
+	option = 0
+	while selection  < 0:
+		graphics = [0]*5
+		graphics[option] = curses.A_REVERSE
+		screen.addstr(dims[0]/2-4, dims[1]/2-2, 'Main menu',)
+		screen.addstr(dims[0]/2-3, dims[1]/2-2, 'Log In', graphics[0])
+		screen.addstr(dims[0]/2-2, dims[1]/2-2, 'Log Out',graphics[1])
+		screen.addstr(dims[0]/2-1, dims[1]/2-2, 'SubMenu',graphics[2])
+		screen.addstr(dims[0]/2, dims[1]/2-2, 'Exit',graphics[3])
+		screen.refresh()
+		action = screen.getch()
+		if action == curses.KEY_UP:
+			option = (option - 1) % 4
+		elif action == curses.KEY_DOWN:
+			option = (option + 1) % 4
+		elif action == (ord('\n')):
+			selection = option
+		screen.clear()
+		if selection == 0:
+			curses.endwin()
+			login()
+			raw_input("Press enter")
+			print ""
+			curses.endwin()
+			menu()
+		elif selection == 1:
+			curses.endwin()
+			logout()
+			print ""
+			curses.endwin()
+			menu()
+		elif selection == 2:
+			submenu()
+		else:
+			curses.endwin()
 
-	x = screen.getch()
 
-	if x == ord('1'):
-		curses.endwin()
-		login()
-		#curses.endwin()
-		#system("clear")
-		raw_input("Press enter")
-		print ""
-
-	if x == ord('2'):
-                curses.endwin()
-                submenu()
-                curses.endwin()
-                system("clear")
-                print ""
-	if x == ord('3'):
-                curses.endwin()
-                logout()
-                curses.endwin()
-                system("clear")
-'''
-		curses.endwin()
-		execute_cmd()
-'''
-curses.endwin()
+screen = curses.initscr()
+dims = screen.getmaxyx()
+screen.keypad(1)
+menu()
