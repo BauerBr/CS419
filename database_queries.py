@@ -51,7 +51,7 @@ def dbConnect(username, password, database, addy):
     
     # undisclosed error
     else:
-      cnx['msg'] = err
+      cnx['msg'] = "Cannot connect to host address"
       return cnx 
 
   # return a successful connection

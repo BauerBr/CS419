@@ -1,8 +1,11 @@
-<<<<<<< HEAD
 #!/usr/bin/env python                                                      
 
 import curses
+import database_queries
 from time import sleep
+
+DEBUG = True
+CON = {}
 
 #----------------------------------------------------
 class MyApp(object):
@@ -17,9 +20,12 @@ class MyApp(object):
 
 
     # Collect db info (host ip, username, etc.)
-    getConnectionInfo(self.screen)
+    un, addy, db, pw = getConnectionInfo(self.screen)
 
-# TODO: establish connection with database
+
+# TODO: establish connection with database and either quit or retry with failure
+    CON = database_queries.dbConnect(un, pw, db, addy) 
+
 
     # Menu starting point
     printMainMenu(self.screen)
@@ -43,7 +49,17 @@ def getConnectionInfo(stdscr):
     database = stdscr.getstr(10, 38, 15)
     stdscr.clear()
 
-# TODO: validate inputs
+    stdscr.addstr(10, 5, "Enter the database password:")
+    password = stdscr.getstr(10, 38, 15)
+    stdscr.clear()
+
+    if DEBUG:
+        username = "root"
+        host = "192.168.10.121"
+        password = "password"
+        database = "testDB"
+
+    return username, host, database, password
 
 
 def printMainMenu(stdscr):
@@ -52,13 +68,13 @@ def printMainMenu(stdscr):
     
     # Print main menu header information
     stdscr.addstr(1, 2, "HOST IP:")
-    #<------- INSERT CODE HERE FOR OBTAINING IP--------------->
+#TODO:  <------- INSERT CODE HERE FOR OBTAINING IP--------------->
     stdscr.addstr(1, 60, "XXX.XXX.XXX.XXX")
     stdscr.addstr(2, 2, "DB USER:")
-    #<------- INSERT CODE HERE FOR OBTAINING USER NAME--------------->
+#TODO:  <------- INSERT CODE HERE FOR OBTAINING USER NAME--------------->
     stdscr.addstr(2, 60, "NAME_HERE")
     stdscr.addstr(3, 2, "DATABASE NAME:")
-    #<------- INSERT CODE HERE FOR OBTAINING DATABASE--------------->
+#TODO:  <------- INSERT CODE HERE FOR OBTAINING DATABASE--------------->
     stdscr.addstr(3, 60, "DATABASE_NAME")
 
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
@@ -91,7 +107,7 @@ def printMainMenu(stdscr):
     if x == ord('5'):
         curses.endwin()
 
-# TODO: need to refactor with a loop in case of bad input
+# TODO: need to refactor with hightlight selection
 
 
 def printViewEditSearchSubmenu(stdscr):
@@ -119,7 +135,7 @@ def printViewEditSearchSubmenu(stdscr):
     if x == ord('4'):
         printMainMenu(stdscr)
 
-# TODO: need to refactor with a loop in case of bad input
+# TODO: need to refactor with hightlight selection
 
 
 def printViewTableSubmenu(stdscr):
@@ -136,7 +152,7 @@ def printViewTableSubmenu(stdscr):
         stdscr.addstr(y, x, menu_string)
         y += 2
 
-# TODO: need to refactor with a loop in case of bad input
+# TODO: need to rewrite for loop with actual table names
     
     stdscr.addstr(22, 45, "[B] Back")
     # Collect user's navigation selection
@@ -144,9 +160,10 @@ def printViewTableSubmenu(stdscr):
 
     # Navigate to submenu
     if x == ord('b') or x == ord('B'):
-       printViewEditSearchSubmenu(stdscr) 
-    
-    curses.endwin()    
+       printViewEditSearchSubmenu(stdscr)
+
+# TODO: need to refactor with hightlight selection
+    curses.endwin() # can erase once highlight is implemented
 
 
 def printEditTableSubmenu(stdscr):
@@ -163,7 +180,7 @@ def printEditTableSubmenu(stdscr):
         stdscr.addstr(y, x, menu_string)
         y += 2
 
-# TODO: need to rewrite for loop for pagination effect
+# TODO: need to rewrite for loop with actual table names
 
     stdscr.addstr(22, 45, "[B] Back")
     # Collect user's navigation selection
@@ -173,7 +190,8 @@ def printEditTableSubmenu(stdscr):
     if x == ord('b') or x == ord('B'):
        printViewEditSearchSubmenu(stdscr) 
     
-    curses.endwin()
+# TODO: need to refactor with hightlight selection
+    curses.endwin() # can erase once highlight is implemented
 
 
 def printSearchTableSubmenu(stdscr):
@@ -190,9 +208,8 @@ def printSearchTableSubmenu(stdscr):
         stdscr.addstr(y, x, menu_string)
         y += 2
 
-# TODO: need to rewrite for loop for pagination effect
+# TODO: need to rewrite for loop with actual table names
 
-    
     stdscr.addstr(22, 45, "[B] Back")
     # Collect user's navigation selection
     x = stdscr.getch()
@@ -201,7 +218,18 @@ def printSearchTableSubmenu(stdscr):
     if x == ord('b') or x == ord('B'):
        printViewEditSearchSubmenu(stdscr) 
     
-    curses.endwin()
+# TODO: need to refactor with hightlight selection
+    curses.endwin() # can erase once highlight is implemented
+
+
+def printCreateTableSubmenu(stdscr):
+# TODO: need to write
+    x = 0
+
+
+def printDeleteTableSubmenu(stdscr):
+# TODO: need to write
+    x = 0
 
 
 def printAboutSubmenu(stdscr):
@@ -220,9 +248,10 @@ def printAboutSubmenu(stdscr):
 
     # Navigate to submenu
     if x == ord('b') or x == ord('B'):
-       printViewEditSearchSubmenu(stdscr) 
-    
-    curses.endwin()   
+       printMainMenu(stdscr) 
+
+# TODO: need to refactor with hightlight selection
+    curses.endwin() # can erase once highlight is implemented 
 
 
 def printLogOffSubMenu(stdscr):
@@ -232,91 +261,3 @@ def printLogOffSubMenu(stdscr):
     time.sleep(5)
 # TODO: log off of database
     curses.endwin()    
-=======
-#!/usr/bin/env python2                                                       
-
-import curses                                                                
-from curses import panel                                                     
-
-class Menu(object):                                                          
-
-    def __init__(self, items, stdscreen):                                    
-        self.window = stdscreen.subwin(0,0)                                  
-        self.window.keypad(1)                                                
-        self.panel = panel.new_panel(self.window)                            
-        self.panel.hide()                                                    
-        panel.update_panels()                                                
-
-        self.position = 0                                                    
-        self.items = items                                                   
-        self.items.append(('exit','exit'))                                   
-
-    def navigate(self, n):                                                   
-        self.position += n                                                   
-        if self.position < 0:                                                
-            self.position = 0                                                
-        elif self.position >= len(self.items):                               
-            self.position = len(self.items)-1                                
-
-    def display(self):                                                       
-        self.panel.top()                                                     
-        self.panel.show()                                                    
-        self.window.clear()                                                  
-
-        while True:                                                          
-            self.window.refresh()                                            
-            curses.doupdate()                                                
-            for index, item in enumerate(self.items):                        
-                if index == self.position:                                   
-                    mode = curses.A_REVERSE                                  
-                else:                                                        
-                    mode = curses.A_NORMAL                                   
-
-                msg = '%d. %s' % (index, item[0])                            
-                self.window.addstr(1+index, 1, msg, mode)                    
-
-            key = self.window.getch()                                        
-
-            if key in [curses.KEY_ENTER, ord('\n')]:                         
-                if self.position == len(self.items)-1:                       
-                    break                                                    
-                else:                                                        
-                    self.items[self.position][1]()                           
-
-            elif key == curses.KEY_UP:                                       
-                self.navigate(-1)                                            
-
-            elif key == curses.KEY_DOWN:                                     
-                self.navigate(1)                                             
-
-        self.window.clear()                                                  
-        self.panel.hide()                                                    
-        panel.update_panels()                                                
-        curses.doupdate()
-
-def test():
-	print "hello i am here"
-
-class MyApp(object):                                                         
-    print "hello i am here"
-    def __init__(self, stdscreen):                                           
-        self.screen = stdscreen                                              
-        curses.curs_set(0)                                                   
-
-        submenu_items = [                                                    
-                ('beep', curses.beep),                                       
-                ('flash', curses.flash)
-                ]                                                            
-        submenu = Menu(submenu_items, self.screen)                           
-
-        main_menu_items = [                                                  
-                ('beep', curses.beep),                                       
-                ('flash', curses.flash),                                     
-                ('submenu', submenu.display)                                 
-                ]                                                            
-        main_menu = Menu(main_menu_items, self.screen)                       
-        main_menu.display()                                                  
-
-if __name__ == '__main__':                                                       
-    curses.wrapper(MyApp) 
->>>>>>> 49ffaf626912c6070d3a0b69f18b4dfd836bbc01
