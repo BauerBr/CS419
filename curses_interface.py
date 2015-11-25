@@ -4,78 +4,128 @@ import curses
 import database_queries
 from time import sleep
 
-DEBUG = True
-CON = {}
+DEBUG = True # automate input vs. manual input
 
-#----------------------------------------------------
+
+# ==================================================
+# Name: 
+#
+# Purpose: 
+#
+# ==================================================
 class MyApp(object):
 
   def __init__(self, stdscreen):
     
     # Init the main curses program
     self.screen = stdscreen
+
     curses.curs_set(0)
     curses.cbreak() 
     curses.echo()
 
-
-    # Collect db info (host ip, username, etc.)
-    un, addy, db, pw = getConnectionInfo(self.screen)
-
-
-# TODO: establish connection with database and either quit or retry with failure
-    CON = database_queries.dbConnect(un, pw, db, addy) 
-
+    # Connect to database
+    con = connectToDatabase(self.screen)
 
     # Menu starting point
-    printMainMenu(self.screen)
-#----------------------------------------------------
+    printMainMenu(self.screen, con)
 
 
-def getConnectionInfo(stdscr):
-    stdscr.clear()
-    stdscr.border(0)
 
-    # collect necessary connection info
-    stdscr.addstr(10, 5, "Enter the database host address:")
-    host = stdscr.getstr(10, 38, 15)
-    stdscr.clear()
 
-    stdscr.addstr(10, 5, "Enter the database username:")
-    username = stdscr.getstr(10, 38, 15)
-    stdscr.clear()
 
-    stdscr.addstr(10, 5, "Enter the database name:")
-    database = stdscr.getstr(10, 38, 15)
-    stdscr.clear()
+# ==================================================
+# Name: 
+#
+# Purpose: 
+#
+# ==================================================
+def connectToDatabase(stdscr):
 
-    stdscr.addstr(10, 5, "Enter the database password:")
-    password = stdscr.getstr(10, 38, 15)
+  # Collect db data and validate connection
+  while(1):
+
+    # Clear the curses screen
     stdscr.clear()
 
+    # Overwrite connection data in debug mode
     if DEBUG:
+        
         username = "root"
-        host = "192.168.10.121"
-        password = "password"
-        database = "testDB"
+        host = "localhost"
+        password = "detachment"
+        database = "myTestDB"
 
-    return username, host, database, password
+    else:
+
+      # Collect necessary connection info
+      stdscr.addstr(10, 5, "Enter the database host address:")
+      host = stdscr.getstr(10, 38, 15)
+      stdscr.clear()
+
+      stdscr.addstr(10, 5, "Enter the database username:")
+      username = stdscr.getstr(10, 38, 15)
+      stdscr.clear()
+
+      stdscr.addstr(10, 5, "Enter the database name:")
+      database = stdscr.getstr(10, 38, 15)
+      stdscr.clear()
+
+      stdscr.addstr(10, 5, "Enter the database password:")
+      password = stdscr.getstr(10, 38, 15)
+      stdscr.clear()
+
+    # Attempt to connect with db
+    con = database_queries.dbConnect(username, password, database, host) 
+
+    # Connection successful
+    if con['state'] == 0:
+
+      # Inform user of connection      
+      stdscr.addstr(10, 5, "Connection to Database Successful! Press Enter to Continue...")
+      stdscr.getstr(1, 1, 0)
+      break
+
+    # Connection Failed
+    else:
+
+      # Inform user of connection failure & reason
+      failure_string = "Connection to Database Failed: %s" % (con['msg'])
+      stdscr.addstr(10, 5, failure_string)
+      stdscr.addstr(13, 13, "[1] Retry")
+      stdscr.addstr(13, 35, "[2] Exit Program")
+
+      # Collect user's navigation selection
+      x = stdscr.getch()
+
+      # Exit program; otherwise collect info again
+      if x == ord('2'):
+          curses.endwin()
+          exit()
+
+  # Return successful connection
+  return con
 
 
-def printMainMenu(stdscr):
+
+
+# ==================================================
+# Name: 
+#
+# Purpose: 
+#
+# ==================================================
+def printMainMenu(stdscr, con):
     stdscr.clear()
     stdscr.border(0)
     
     # Print main menu header information
     stdscr.addstr(1, 2, "HOST IP:")
-#TODO:  <------- INSERT CODE HERE FOR OBTAINING IP--------------->
-    stdscr.addstr(1, 60, "XXX.XXX.XXX.XXX")
+    stdscr.addstr(1, 60, con['host'])
     stdscr.addstr(2, 2, "DB USER:")
-#TODO:  <------- INSERT CODE HERE FOR OBTAINING USER NAME--------------->
-    stdscr.addstr(2, 60, "NAME_HERE")
+    stdscr.addstr(2, 60, con['user'])
     stdscr.addstr(3, 2, "DATABASE NAME:")
-#TODO:  <------- INSERT CODE HERE FOR OBTAINING DATABASE--------------->
-    stdscr.addstr(3, 60, "DATABASE_NAME")
+    stdscr.addstr(3, 60, con['database'])
 
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 30, "-- MAIN MENU --")
@@ -93,7 +143,7 @@ def printMainMenu(stdscr):
 
     # Navigate to submenu
     if x == ord('1'):
-        printViewEditSearchSubmenu(stdscr)
+        printViewEditSearchSubmenu(stdscr, con)
 
     if x == ord('2'):
         curses.endwin()
@@ -102,7 +152,7 @@ def printMainMenu(stdscr):
         curses.endwin()
 
     if x == ord('4'):
-        printAboutSubmenu(stdscr)
+        printAboutSubmenu(stdscr, con)
 
     if x == ord('5'):
         curses.endwin()
@@ -110,7 +160,16 @@ def printMainMenu(stdscr):
 # TODO: need to refactor with hightlight selection
 
 
-def printViewEditSearchSubmenu(stdscr):
+
+
+
+# ==================================================
+# Name: 
+#
+# Purpose: 
+#
+# ==================================================
+def printViewEditSearchSubmenu(stdscr, con):
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 20, "-- VIEW / EDIT / SEARCH SUBMENU --")
@@ -124,21 +183,30 @@ def printViewEditSearchSubmenu(stdscr):
 
     # Navigate to submenu
     if x == ord('1'):
-        printViewTableSubmenu(stdscr)
+        printViewTableSubmenu(stdscr, con)
 
     if x == ord('2'):
-        printEditTableSubmenu(stdscr)
+        printEditTableSubmenu(stdscr, con)
 
     if x == ord('3'):
-        printSearchTableSubmenu(stdscr)
+        printSearchTableSubmenu(stdscr, con)
 
     if x == ord('4'):
-        printMainMenu(stdscr)
+        printMainMenu(stdscr, con)
 
 # TODO: need to refactor with hightlight selection
+    curses.endwin() # can erase once highlight is implemented
 
 
-def printViewTableSubmenu(stdscr):
+
+
+# ==================================================
+# Name: 
+#
+# Purpose: 
+#
+# ==================================================
+def printViewTableSubmenu(stdscr, con):
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 30, "-- VIEW TABLE --")
@@ -160,13 +228,21 @@ def printViewTableSubmenu(stdscr):
 
     # Navigate to submenu
     if x == ord('b') or x == ord('B'):
-       printViewEditSearchSubmenu(stdscr)
+       printViewEditSearchSubmenu(stdscr, con)
 
 # TODO: need to refactor with hightlight selection
     curses.endwin() # can erase once highlight is implemented
 
 
-def printEditTableSubmenu(stdscr):
+
+
+# ==================================================
+# Name: 
+#
+# Purpose: 
+#
+# ==================================================
+def printEditTableSubmenu(stdscr, con):
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 30, "-- EDIT TABLE --")
@@ -188,13 +264,22 @@ def printEditTableSubmenu(stdscr):
 
     # Navigate to submenu
     if x == ord('b') or x == ord('B'):
-       printViewEditSearchSubmenu(stdscr) 
+       printViewEditSearchSubmenu(stdscr, con) 
     
 # TODO: need to refactor with hightlight selection
     curses.endwin() # can erase once highlight is implemented
 
 
-def printSearchTableSubmenu(stdscr):
+
+
+
+# ==================================================
+# Name: 
+#
+# Purpose: 
+#
+# ==================================================
+def printSearchTableSubmenu(stdscr, con):
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 28, "-- SEARCH TABLE --")
@@ -216,30 +301,59 @@ def printSearchTableSubmenu(stdscr):
 
     # Navigate to submenu
     if x == ord('b') or x == ord('B'):
-       printViewEditSearchSubmenu(stdscr) 
+       printViewEditSearchSubmenu(stdscr, con) 
     
 # TODO: need to refactor with hightlight selection
     curses.endwin() # can erase once highlight is implemented
 
 
-def printCreateTableSubmenu(stdscr):
+
+
+# ==================================================
+# Name: 
+#
+# Purpose: 
+#
+# ==================================================
+def printCreateTableSubmenu(stdscr, con):
 # TODO: need to write
     x = 0
 
 
-def printDeleteTableSubmenu(stdscr):
+
+
+# ==================================================
+# Name: 
+#
+# Purpose: 
+#
+# ==================================================
+def printDeleteTableSubmenu(stdscr, con):
 # TODO: need to write
     x = 0
 
 
-def printAboutSubmenu(stdscr):
+
+
+# ==================================================
+# Name: 
+#
+# Purpose: 
+#
+# ==================================================
+def printAboutSubmenu(stdscr, con):
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 30, "-- ABOUT --")
+    
+    string_line0 = "curses_database_interface v1.0"
     string_line1 = "This program has been written by authors Nick Mastrokalos, Bryan Bauer,"
     string_line2 = "and Darnel Clayton for Fall 2015 CS419's final software project."
-    stdscr.addstr(8, 4, string_line1)
-    stdscr.addstr(9, 4, string_line2)
+    stdscr.addstr(8, 4, "Version:")
+    stdscr.addstr(9, 4, string_line0)
+    stdscr.addstr(11, 4, "Notes:")
+    stdscr.addstr(12, 4, string_line1)
+    stdscr.addstr(13, 4, string_line2)
 
 
     stdscr.addstr(22, 32, "[B] Back")
@@ -248,16 +362,24 @@ def printAboutSubmenu(stdscr):
 
     # Navigate to submenu
     if x == ord('b') or x == ord('B'):
-       printMainMenu(stdscr) 
+       printMainMenu(stdscr, con) 
 
 # TODO: need to refactor with hightlight selection
     curses.endwin() # can erase once highlight is implemented 
 
 
-def printLogOffSubMenu(stdscr):
+
+
+# ==================================================
+# Name: 
+#
+# Purpose: 
+#
+# ==================================================
+def printLogOffSubMenu(stdscr, con):
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(12, 24, "LOGGING OFF...")
     time.sleep(5)
 # TODO: log off of database
-    curses.endwin()    
+    curses.endwin()

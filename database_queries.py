@@ -18,6 +18,10 @@ def dbConnect(username, password, database, addy):
   cnx = {
     'con' : 'None',
     'state' : 'None', # 1-no connection, 2-connection
+    'user' : username,
+    'password' : password,
+    'host' : addy,
+    'database' : database,
     'msg' : 'None' }
 
   # variables required for connection
@@ -41,7 +45,7 @@ def dbConnect(username, password, database, addy):
     
     # bad username or password
     if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-      cnx['msg'] = 'Something is wrong with your user name or password'
+      cnx['msg'] = 'Username or Password invalid'
       return cnx
 
     # database doesn't exist or bad name
