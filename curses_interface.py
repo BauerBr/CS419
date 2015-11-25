@@ -1,86 +1,233 @@
-#!/usr/bin/env python2                                                       
+#!/usr/bin/env python                                                      
 
-import curses                                                                
-from curses import panel                                                     
+import curses
+from time import sleep
 
-class Menu(object):                                                          
+#----------------------------------------------------
+class MyApp(object):
 
-    def __init__(self, items, stdscreen):                                    
-        self.window = stdscreen.subwin(0,0)                                  
-        self.window.keypad(1)                                                
-        self.panel = panel.new_panel(self.window)                            
-        self.panel.hide()                                                    
-        panel.update_panels()                                                
+  def __init__(self, stdscreen):
+    
+    # Init the main curses program
+    self.screen = stdscreen
+    curses.curs_set(0)
+    curses.cbreak() 
+    curses.echo()
 
-        self.position = 0                                                    
-        self.items = items                                                   
-        self.items.append(('exit','exit'))                                   
 
-    def navigate(self, n):                                                   
-        self.position += n                                                   
-        if self.position < 0:                                                
-            self.position = 0                                                
-        elif self.position >= len(self.items):                               
-            self.position = len(self.items)-1                                
+    # Collect db info (host ip, username, etc.)
+    getConnectionInfo(self.screen)
 
-    def display(self):                                                       
-        self.panel.top()                                                     
-        self.panel.show()                                                    
-        self.window.clear()                                                  
+# TODO: establish connection with database
 
-        while True:                                                          
-            self.window.refresh()                                            
-            curses.doupdate()                                                
-            for index, item in enumerate(self.items):                        
-                if index == self.position:                                   
-                    mode = curses.A_REVERSE                                  
-                else:                                                        
-                    mode = curses.A_NORMAL                                   
+    # Menu starting point
+    printMainMenu(self.screen)
+#----------------------------------------------------
 
-                msg = '%d. %s' % (index, item[0])                            
-                self.window.addstr(1+index, 1, msg, mode)                    
 
-            key = self.window.getch()                                        
+def getConnectionInfo(stdscr):
+    stdscr.clear()
+    stdscr.border(0)
 
-            if key in [curses.KEY_ENTER, ord('\n')]:                         
-                if self.position == len(self.items)-1:                       
-                    break                                                    
-                else:                                                        
-                    self.items[self.position][1]()                           
+    # collect necessary connection info
+    stdscr.addstr(10, 5, "Enter the database host address:")
+    host = stdscr.getstr(10, 38, 15)
+    stdscr.clear()
 
-            elif key == curses.KEY_UP:                                       
-                self.navigate(-1)                                            
+    stdscr.addstr(10, 5, "Enter the database username:")
+    username = stdscr.getstr(10, 38, 15)
+    stdscr.clear()
 
-            elif key == curses.KEY_DOWN:                                     
-                self.navigate(1)                                             
+    stdscr.addstr(10, 5, "Enter the database name:")
+    database = stdscr.getstr(10, 38, 15)
+    stdscr.clear()
 
-        self.window.clear()                                                  
-        self.panel.hide()                                                    
-        panel.update_panels()                                                
-        curses.doupdate()
+# TODO: validate inputs
 
-def test():
-	print "hello i am here"
 
-class MyApp(object):                                                         
-    print "hello i am here"
-    def __init__(self, stdscreen):                                           
-        self.screen = stdscreen                                              
-        curses.curs_set(0)                                                   
+def printMainMenu(stdscr):
+    stdscr.clear()
+    stdscr.border(0)
+    
+    # Print main menu header information
+    stdscr.addstr(1, 2, "HOST IP:")
+    #<------- INSERT CODE HERE FOR OBTAINING IP--------------->
+    stdscr.addstr(1, 60, "XXX.XXX.XXX.XXX")
+    stdscr.addstr(2, 2, "DB USER:")
+    #<------- INSERT CODE HERE FOR OBTAINING USER NAME--------------->
+    stdscr.addstr(2, 60, "NAME_HERE")
+    stdscr.addstr(3, 2, "DATABASE NAME:")
+    #<------- INSERT CODE HERE FOR OBTAINING DATABASE--------------->
+    stdscr.addstr(3, 60, "DATABASE_NAME")
 
-        submenu_items = [                                                    
-                ('beep', curses.beep),                                       
-                ('flash', curses.flash)
-                ]                                                            
-        submenu = Menu(submenu_items, self.screen)                           
+    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+    stdscr.addstr(6, 30, "-- MAIN MENU --")
 
-        main_menu_items = [                                                  
-                ('beep', curses.beep),                                       
-                ('flash', curses.flash),                                     
-                ('submenu', submenu.display)                                 
-                ]                                                            
-        main_menu = Menu(main_menu_items, self.screen)                       
-        main_menu.display()                                                  
+    # Print main menu options
+    stdscr.addstr(9, 6, "[1]  View / Edit / Search Table")
+    stdscr.addstr(11, 6, "[2]  Create Table")
+    stdscr.addstr(13, 6, "[3]  Delete Table")
+    stdscr.addstr(15, 6, "[4]  About")
+    stdscr.addstr(17, 6, "[5]  Log Off / Exit")
+    stdscr.refresh()
 
-if __name__ == '__main__':                                                       
-    curses.wrapper(MyApp)   
+    # Collect user's navigation selection
+    x = stdscr.getch()
+
+    # Navigate to submenu
+    if x == ord('1'):
+        printViewEditSearchSubmenu(stdscr)
+
+    if x == ord('2'):
+        curses.endwin()
+
+    if x == ord('3'):
+        curses.endwin()
+
+    if x == ord('4'):
+        printAboutSubmenu(stdscr)
+
+    if x == ord('5'):
+        curses.endwin()
+
+# TODO: need to refactor with a loop in case of bad input
+
+
+def printViewEditSearchSubmenu(stdscr):
+    stdscr.clear()
+    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+    stdscr.addstr(6, 20, "-- VIEW / EDIT / SEARCH SUBMENU --")
+    stdscr.addstr(9, 6, "[1] View Table")
+    stdscr.addstr(11, 6, "[2] Edit Table")
+    stdscr.addstr(13, 6, "[3] Search Table")
+    stdscr.addstr(15, 6, "[4] Back to Main Menu")
+ 
+    # Collect user's navigation selection
+    x = stdscr.getch()
+
+    # Navigate to submenu
+    if x == ord('1'):
+        printViewTableSubmenu(stdscr)
+
+    if x == ord('2'):
+        printEditTableSubmenu(stdscr)
+
+    if x == ord('3'):
+        printSearchTableSubmenu(stdscr)
+
+    if x == ord('4'):
+        printMainMenu(stdscr)
+
+# TODO: need to refactor with a loop in case of bad input
+
+
+def printViewTableSubmenu(stdscr):
+    stdscr.clear()
+    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+    stdscr.addstr(6, 30, "-- VIEW TABLE --")
+    
+    # Loop list of tables and print to screen
+    i = 0
+    y = 9
+    x = 6
+    for i in range(5):
+        menu_string = "[%s] tablename" % (i)
+        stdscr.addstr(y, x, menu_string)
+        y += 2
+
+# TODO: need to refactor with a loop in case of bad input
+    
+    stdscr.addstr(22, 45, "[B] Back")
+    # Collect user's navigation selection
+    x = stdscr.getch()
+
+    # Navigate to submenu
+    if x == ord('b') or x == ord('B'):
+       printViewEditSearchSubmenu(stdscr) 
+    
+    curses.endwin()    
+
+
+def printEditTableSubmenu(stdscr):
+    stdscr.clear()
+    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+    stdscr.addstr(6, 30, "-- EDIT TABLE --")
+    
+    # Loop list of tables and print to screen
+    i = 0
+    y = 9
+    x = 6
+    for i in range(5):
+        menu_string = "[%s] tablename" % (i)
+        stdscr.addstr(y, x, menu_string)
+        y += 2
+
+# TODO: need to rewrite for loop for pagination effect
+
+    stdscr.addstr(22, 45, "[B] Back")
+    # Collect user's navigation selection
+    x = stdscr.getch()
+
+    # Navigate to submenu
+    if x == ord('b') or x == ord('B'):
+       printViewEditSearchSubmenu(stdscr) 
+    
+    curses.endwin()
+
+
+def printSearchTableSubmenu(stdscr):
+    stdscr.clear()
+    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+    stdscr.addstr(6, 28, "-- SEARCH TABLE --")
+    
+    # Loop list of tables and print to screen
+    i = 0
+    y = 9
+    x = 6
+    for i in range(5):
+        menu_string = "[%s] tablename" % (i)
+        stdscr.addstr(y, x, menu_string)
+        y += 2
+
+# TODO: need to rewrite for loop for pagination effect
+
+    
+    stdscr.addstr(22, 45, "[B] Back")
+    # Collect user's navigation selection
+    x = stdscr.getch()
+
+    # Navigate to submenu
+    if x == ord('b') or x == ord('B'):
+       printViewEditSearchSubmenu(stdscr) 
+    
+    curses.endwin()
+
+
+def printAboutSubmenu(stdscr):
+    stdscr.clear()
+    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+    stdscr.addstr(6, 30, "-- ABOUT --")
+    string_line1 = "This program has been written by authors Nick Mastrokalos, Bryan Bauer,"
+    string_line2 = "and Darnel Clayton for Fall 2015 CS419's final software project."
+    stdscr.addstr(8, 4, string_line1)
+    stdscr.addstr(9, 4, string_line2)
+
+
+    stdscr.addstr(22, 32, "[B] Back")
+    # Collect user's navigation selection
+    x = stdscr.getch()
+
+    # Navigate to submenu
+    if x == ord('b') or x == ord('B'):
+       printViewEditSearchSubmenu(stdscr) 
+    
+    curses.endwin()   
+
+
+def printLogOffSubMenu(stdscr):
+    stdscr.clear()
+    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+    stdscr.addstr(12, 24, "LOGGING OFF...")
+    time.sleep(5)
+# TODO: log off of database
+    curses.endwin()    
