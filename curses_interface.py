@@ -55,9 +55,9 @@ def connectToDatabase(stdscr):
     # Overwrite connection data in debug mode
     if DEBUG:
         username = "root"
-        host = "localhost"
-        password = "detachment"
-        database = "myTestDB"
+        host = "192.168.1.181"
+        password = "password"
+        database = "TestDC"
 
     else:
         # Collect necessary connection info
@@ -119,9 +119,13 @@ def connectToDatabase(stdscr):
 # databases_queries.py.
 # ==================================================
 def printMainMenu(stdscr, con):
-    stdscr.clear()
-    stdscr.border(0)
+    x = 0
+    while x != ord('5'):
+        
+        stdscr.clear()
+        stdscr.border(0)
     
+<<<<<<< HEAD
     # Print main menu header information
     stdscr.addstr(1, 2, "HOST IP:")
     stdscr.addstr(1, 60, con['host'])
@@ -159,6 +163,45 @@ def printMainMenu(stdscr, con):
 
     if x == ord('5'):
         printLogOffSubMenu(stdscr, con)
+=======
+        # Print main menu header information
+        stdscr.addstr(1, 2, "HOST IP:")
+        stdscr.addstr(1, 60, con['host'])
+        stdscr.addstr(2, 2, "DB USER:")
+        stdscr.addstr(2, 60, con['user'])
+        stdscr.addstr(3, 2, "DATABASE NAME:")
+        stdscr.addstr(3, 60, con['database'])
+
+        stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+        stdscr.addstr(6, 30, "-- MAIN MENU --")
+
+        # Print main menu options
+        stdscr.addstr(9, 6, "[1]  View / Edit / Search Table")
+        stdscr.addstr(11, 6, "[2]  Create Table")
+        stdscr.addstr(13, 6, "[3]  Delete Table")
+        stdscr.addstr(15, 6, "[4]  About")
+        stdscr.addstr(17, 6, "[5]  Log Off / Exit")
+        stdscr.refresh()
+
+        # Collect user's navigation selection
+        x = stdscr.getch()
+
+        # Navigate to submenu
+        if x == ord('1'):
+            printViewEditSearchSubmenu(stdscr, con)
+
+        if x == ord('2'):
+            curses.endwin()
+
+        if x == ord('3'):
+            curses.endwin()
+
+        if x == ord('4'):
+            printAboutSubmenu(stdscr, con)
+
+        #if x == ord('5'):
+    curses.endwin()
+>>>>>>> ec793ca20c1c1a91ec991adf92ea6e0ff48e765b
 
 # TODO: need to refactor with hightlight selection
 
