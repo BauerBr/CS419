@@ -1,5 +1,4 @@
-#!/usr/bin/env python                                                      
-
+#!/usr/bin/env python
 import curses
 import database_queries
 from time import sleep
@@ -8,10 +7,12 @@ DEBUG = True # automate input vs. manual input
 
 
 # ==================================================
-# Name: 
+# Name: MyApp(object)
 #
-# Purpose: 
-#
+# Purpose: Serves as the primary starting point of
+# the application. creates an curses object, sets
+# curses options, establishes connection with db,
+# and directs user to db connect screen.
 # ==================================================
 class MyApp(object):
 
@@ -35,10 +36,13 @@ class MyApp(object):
 
 
 # ==================================================
-# Name: 
+# Name: connectToDatabase(stdscr)
 #
-# Purpose: 
-#
+# Purpose: Collects db connection information from
+# the user including host IP address, db name, db
+# user, and password. validates success/failure of
+# db connection and informs user. Upon completion,
+# redirects to main menu.
 # ==================================================
 def connectToDatabase(stdscr):
 
@@ -50,37 +54,34 @@ def connectToDatabase(stdscr):
 
     # Overwrite connection data in debug mode
     if DEBUG:
-        
         username = "root"
         host = "localhost"
         password = "detachment"
         database = "myTestDB"
 
     else:
+        # Collect necessary connection info
+        stdscr.addstr(10, 5, "Enter the database host address:")
+        host = stdscr.getstr(10, 38, 15)
+        stdscr.clear()
 
-      # Collect necessary connection info
-      stdscr.addstr(10, 5, "Enter the database host address:")
-      host = stdscr.getstr(10, 38, 15)
-      stdscr.clear()
+        stdscr.addstr(10, 5, "Enter the database username:")
+        username = stdscr.getstr(10, 38, 15)
+        stdscr.clear()
 
-      stdscr.addstr(10, 5, "Enter the database username:")
-      username = stdscr.getstr(10, 38, 15)
-      stdscr.clear()
+        stdscr.addstr(10, 5, "Enter the database name:")
+        database = stdscr.getstr(10, 38, 15)
+        stdscr.clear()
 
-      stdscr.addstr(10, 5, "Enter the database name:")
-      database = stdscr.getstr(10, 38, 15)
-      stdscr.clear()
-
-      stdscr.addstr(10, 5, "Enter the database password:")
-      password = stdscr.getstr(10, 38, 15)
-      stdscr.clear()
+        stdscr.addstr(10, 5, "Enter the database password:")
+        password = stdscr.getstr(10, 38, 15)
+        stdscr.clear()
 
     # Attempt to connect with db
     con = database_queries.dbConnect(username, password, database, host) 
 
     # Connection successful
     if con['state'] == 0:
-
       # Inform user of connection      
       stdscr.addstr(10, 5, "Connection to Database Successful! Press Enter to Continue...")
       stdscr.getstr(1, 1, 0)
@@ -88,20 +89,19 @@ def connectToDatabase(stdscr):
 
     # Connection Failed
     else:
-
-      # Inform user of connection failure & reason
-      failure_string = "Connection to Database Failed: %s" % (con['msg'])
-      stdscr.addstr(10, 5, failure_string)
-      stdscr.addstr(13, 13, "[1] Retry")
-      stdscr.addstr(13, 35, "[2] Exit Program")
+        # Inform user of connection failure & reason
+        failure_string = "Connection to Database Failed: %s" % (con['msg'])
+        stdscr.addstr(10, 5, failure_string)
+        stdscr.addstr(13, 13, "[1] Retry")
+        stdscr.addstr(13, 35, "[2] Exit Program")
 
       # Collect user's navigation selection
-      x = stdscr.getch()
+        x = stdscr.getch()
 
       # Exit program; otherwise collect info again
-      if x == ord('2'):
-          curses.endwin()
-          exit()
+        if x == ord('2'):
+            curses.endwin()
+            exit()
 
   # Return successful connection
   return con
@@ -110,10 +110,13 @@ def connectToDatabase(stdscr):
 
 
 # ==================================================
-# Name: 
+# Name: printMainMenu(stdscr, con)
 #
-# Purpose: 
-#
+# Purpose: Serves as the main menu of the application.
+# accepts user input and navigates to submenus as
+# directed. Submenus redirect to this menu as well.
+# makes use of the con[] dictionary provided by
+# databases_queries.py.
 # ==================================================
 def printMainMenu(stdscr, con):
     stdscr.clear()
@@ -146,16 +149,16 @@ def printMainMenu(stdscr, con):
         printViewEditSearchSubmenu(stdscr, con)
 
     if x == ord('2'):
-        curses.endwin()
+        printCreateTableSubmenu(stdscr, con)
 
     if x == ord('3'):
-        curses.endwin()
+        printDeleteTableSubmenu(stdscr, con)
 
     if x == ord('4'):
         printAboutSubmenu(stdscr, con)
 
     if x == ord('5'):
-        curses.endwin()
+        printLogOffSubMenu(stdscr, con)
 
 # TODO: need to refactor with hightlight selection
 
@@ -164,10 +167,12 @@ def printMainMenu(stdscr, con):
 
 
 # ==================================================
-# Name: 
+# Name: printViewEditSearchSubmenu(stdscr, con)
 #
-# Purpose: 
-#
+# Purpose: This is the submenu that allows a user to 
+# view, edit, or search an existing table in the db
+# that has been connected to. user can also return
+# to the main menu.
 # ==================================================
 def printViewEditSearchSubmenu(stdscr, con):
     stdscr.clear()
@@ -196,15 +201,18 @@ def printViewEditSearchSubmenu(stdscr, con):
 
 # TODO: need to refactor with hightlight selection
     curses.endwin() # can erase once highlight is implemented
+    exit()
 
 
 
 
 # ==================================================
-# Name: 
+# Name: printViewTableSubmenu(stdscr, con)
 #
-# Purpose: 
-#
+# Purpose: Menu for viewing tables in the database.
+# returns all tables in a column format. Tables,
+# that exceed screen space will be provided in add'l
+# spaces.
 # ==================================================
 def printViewTableSubmenu(stdscr, con):
     stdscr.clear()
@@ -232,15 +240,17 @@ def printViewTableSubmenu(stdscr, con):
 
 # TODO: need to refactor with hightlight selection
     curses.endwin() # can erase once highlight is implemented
+    exit()
 
 
 
 
 # ==================================================
-# Name: 
+# Name: printEditTableSubmenu(stdscr, con)
 #
-# Purpose: 
-#
+# Purpose: Provides a list of tables that can be
+# edited. User will select a table for editing, or
+# can return to the next higher submenu.
 # ==================================================
 def printEditTableSubmenu(stdscr, con):
     stdscr.clear()
@@ -268,16 +278,18 @@ def printEditTableSubmenu(stdscr, con):
     
 # TODO: need to refactor with hightlight selection
     curses.endwin() # can erase once highlight is implemented
+    exit()
 
 
 
 
 
 # ==================================================
-# Name: 
+# Name: printSearchTableSubmenu(stdscr, con)
 #
-# Purpose: 
-#
+# Purpose: Provides a list of tables that can be
+# searched. User will select a table for search, or
+# can return to the next higher submenu.
 # ==================================================
 def printSearchTableSubmenu(stdscr, con):
     stdscr.clear()
@@ -305,41 +317,155 @@ def printSearchTableSubmenu(stdscr, con):
     
 # TODO: need to refactor with hightlight selection
     curses.endwin() # can erase once highlight is implemented
+    exit()
 
 
 
 
 # ==================================================
-# Name: 
+# Name: printCreateTableSubmenu(stdscr, con)
 #
-# Purpose: 
+# Purpose: Redirects from main menu to the create
+# table menu. In current instantiation, user is
+# provided with the ability to enter a "create"
+# query which will be submitted to db. 
 #
+# NOTE: user can technically enter a select, insert,
+# or delete query and, upon successful submission,
+# it will work. 
 # ==================================================
 def printCreateTableSubmenu(stdscr, con):
-# TODO: need to write
-    x = 0
+    stdscr.clear()
+    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+    stdscr.addstr(6, 28, "-- CREATE TABLE --")
+
+    # Draw input table
+    stdscr.addstr(8, 6, "Enter a sql statement:")
+    stdscr.addstr(10, 5, "+")
+    stdscr.addstr(10, 6, "--------------------------------------------------------------------")
+    stdscr.addstr(10, 74, "+")
+    stdscr.addstr(11, 5, "|")
+    stdscr.addstr(12, 5, "|")
+    stdscr.addstr(13, 5, "|")
+    stdscr.addstr(11, 74, "|")
+    stdscr.addstr(12, 74, "|")
+    stdscr.addstr(13, 74, "|")
+    stdscr.addstr(14, 5, "+")
+    stdscr.addstr(14, 6, "--------------------------------------------------------------------")
+    stdscr.addstr(14, 74, "+")
+
+    # Collect user input
+    user_input = stdscr.getstr(12, 7, 66)
+    
+    # Attempt to submit query
+    database_queries.dbQuery(con, user_input)
+
+    # create query success; return to main menu
+    if queryCheck(con) == 1:
+        stdscr.clear()
+        stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+        stdscr.addstr(6, 28, "-- CREATE TABLE --")
+        stdscr.addstr(10, 5, "Query Success! Press Enter to Continue...")
+        stdscr.getstr(1, 1, 0)
+        printMainMenu(stdscr, con)
+
+    # create query failure; return to main menu
+    else:
+        stdscr.clear()
+        stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+        stdscr.addstr(6, 28, "-- CREATE TABLE --")
+        stdscr.addstr(10, 5, "Query Failure! Press Enter to Continue...")
+        stdscr.getstr(1, 1, 0)
+        printMainMenu(stdscr, con)
 
 
 
 
 # ==================================================
-# Name: 
+# Name: queryCheck(con)
 #
-# Purpose: 
+# Purpose: Verifies connection message and validates
+# if query is success (return 1) or failure (return 0).
+# ==================================================
+def queryCheck(con):
+    # Parse query message response
+    response = con['msg'].split() 
+
+    # Successful query
+    if response[0] == 'Successful':
+        return 1
+    
+    # Failed query
+    else:
+        return 0 
+
+
+
+
+# ==================================================
+# Name: printDeleteTableSubmenu(stdscr, con)
 #
+# Purpose: Redirects from main menu to the create
+# table menu. In current instantiation, user is
+# provided with the ability to enter a "Delete"
+# query which will be submitted to db. 
+#
+# NOTE: user can technically enter a select, insert,
+# or delete query and, upon successful submission,
+# it will work. 
 # ==================================================
 def printDeleteTableSubmenu(stdscr, con):
-# TODO: need to write
-    x = 0
+    stdscr.clear()
+    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+    stdscr.addstr(6, 28, "-- DELETE TABLE --")
+
+    # Draw input table
+    stdscr.addstr(8, 6, "Enter a sql statement:")
+    stdscr.addstr(10, 5, "+")
+    stdscr.addstr(10, 6, "--------------------------------------------------------------------")
+    stdscr.addstr(10, 74, "+")
+    stdscr.addstr(11, 5, "|")
+    stdscr.addstr(12, 5, "|")
+    stdscr.addstr(13, 5, "|")
+    stdscr.addstr(11, 74, "|")
+    stdscr.addstr(12, 74, "|")
+    stdscr.addstr(13, 74, "|")
+    stdscr.addstr(14, 5, "+")
+    stdscr.addstr(14, 6, "--------------------------------------------------------------------")
+    stdscr.addstr(14, 74, "+")
+
+    # Collect user input
+    user_input = stdscr.getstr(12, 7, 66)
+    
+    # Attempt to submit query
+    database_queries.dbQuery(con, user_input)
+
+    # Delete query success; return to main menu
+    if queryCheck(con) == 1:
+        stdscr.clear()
+        stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+        stdscr.addstr(6, 28, "-- DELETE TABLE --")
+        stdscr.addstr(10, 5, "Query Success! Press Enter to Continue...")
+        stdscr.getstr(1, 1, 0)
+        printMainMenu(stdscr, con)
+
+    # Delete query failure; return to main menu
+    else:
+        stdscr.clear()
+        stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+        stdscr.addstr(6, 28, "-- DELETE TABLE --")
+        stdscr.addstr(10, 5, "Query Failure! Press Enter to Continue...")
+        stdscr.getstr(1, 1, 0)
+        printMainMenu(stdscr, con)
 
 
 
 
 # ==================================================
-# Name: 
+# Name: printAboutSubmenu(stdscr, con)
 #
-# Purpose: 
-#
+# Purpose: accessed from the main menu, prints info
+# about the program including version.
 # ==================================================
 def printAboutSubmenu(stdscr, con):
     stdscr.clear()
@@ -366,20 +492,39 @@ def printAboutSubmenu(stdscr, con):
 
 # TODO: need to refactor with hightlight selection
     curses.endwin() # can erase once highlight is implemented 
+    exit()
 
 
 
 
 # ==================================================
-# Name: 
+# Name: printLogOffSubMenu(stdscr, con)
 #
-# Purpose: 
-#
+# Purpose: accessed from the main menu, starts the
+# process of logging off. After confirmation,
+# disconnects from db and exits program. Otherwise,
+# returns to the main menu.
 # ==================================================
 def printLogOffSubMenu(stdscr, con):
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
-    stdscr.addstr(12, 24, "LOGGING OFF...")
-    time.sleep(5)
-# TODO: log off of database
-    curses.endwin()
+    stdscr.addstr(6, 30, "-- LOG OFF --")
+    stdscr.addstr(10, 13, "Are you sure you'd like to log off?")
+    stdscr.addstr(13, 13, "[1] Log Off")
+    stdscr.addstr(13, 35, "[2] Return to Program")
+
+    # Collect user's navigation selection
+    x = stdscr.getch()
+
+# TODO: need to refactor with hightlight selection
+
+    # If user wants to disconnect... Exit
+    if x == ord('1'):
+        # Close connection with db and exit
+        database_queries.dbClose(con)
+        curses.endwin()
+        exit()
+
+    # Return to main menu
+    if x == ord('2'):
+        printMainMenu(stdscr, con)

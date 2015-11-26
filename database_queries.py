@@ -151,9 +151,14 @@ def dbQuery(cnx, queryString):
   query = str(queryString) 
 
   # determine type of query using first word
-  split_query = query.split()
-  query_selection = split_query[0]
-  query_selection_upper = query_selection.upper()
+  try: 
+    split_query = query.split()
+    query_selection = split_query[0]
+    query_selection_upper = query_selection.upper()
+
+  except: # ensures that blank entries are caught (or strings that can't be split)
+    cnx['msg'] = 'Failed query'
+    return cnx
 
   # prepare connection cursor for request
   cursor = cnx['con'].cursor(dictionary=True)
