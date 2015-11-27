@@ -202,8 +202,6 @@ def printViewEditSubmenu(stdscr, con):
     if user_input == ord('3'):
         printMainMenu(stdscr, con)
 
-    curses.endwin() # can erase once highlight is implemented
-    exit() # can erase once highlight is implemented
 
 
 

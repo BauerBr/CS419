@@ -205,7 +205,35 @@ def dbQuery(cnx, queryString):
      except mysql.connector.Error as e:
       cursor.close()
       cnx['msg'] = 'Failed INSERT query'
-      return cnx  
+      return cnx
+
+  # CREATE query
+  elif query_selection_upper == 'CREATE':
+     try:
+      cursor.execute(query)
+      cnx['msg'] = 'Successful CREATE query submitted'
+      cnx['con'].commit()
+      cursor.close()
+      return cnx
+
+     except mysql.connector.Error as e:
+      cursor.close()
+      cnx['msg'] = 'Failed CREATE query'
+      return cnx
+
+  # DROP query
+  elif query_selection_upper == 'DROP':
+     try:
+      cursor.execute(query)
+      cnx['msg'] = 'Successful DROP query submitted'
+      cnx['con'].commit()
+      cursor.close()
+      return cnx
+
+     except mysql.connector.Error as e:
+      cursor.close()
+      cnx['msg'] = 'Failed DROP query'
+      return cnx
 
 
   # other query type
