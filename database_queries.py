@@ -115,6 +115,7 @@ def dbTables(cnx):
       
       # update query msg
       cnx['msg'] = 'Tables retreived'
+      cnx['tbl_cnt'] = len(cnx['tables'])
       cursor.close()
       return cnx
 

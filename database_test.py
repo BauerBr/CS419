@@ -22,9 +22,9 @@ else: # If set to False, variables are hardcoded here
   print 'Variables Set for Connection'
   print '--------------------------------------------'
   username = 'root'
-  database = 'TestDC'
-  password = 'password'
-  addy = '192.168.1.181'
+  database = 'employees'
+  password = 'detachment'
+  addy = 'localhost'
   print 'Username:\t' + username
   print 'Database:\t' + database
   print 'Password:\t' + password
