@@ -51,7 +51,7 @@ def login():
   		print 'Failed',
 		return False
 	if VERBOSE: # If set prints the failure message received in initial call to connect
-  		#print '[' + con['msg'] + ']'
+  		print '[' + con['msg'] + ']'
 		print "\nI am HERE"
 		print '\n'
 	wait = raw_input("Press [ENTER]")
@@ -142,7 +142,6 @@ x = 0
 
 
 def menu():
-	screen.border(0)
 	screen.nodelay(0)
 	selection = -1
 	option = 0
@@ -154,6 +153,7 @@ def menu():
 		screen.addstr(dims[0]/2-2, dims[1]/2-2, 'Log Out',graphics[1])
 		screen.addstr(dims[0]/2-1, dims[1]/2-2, 'SubMenu',graphics[2])
 		screen.addstr(dims[0]/2, dims[1]/2-2, 'Exit',graphics[3])
+		
 		screen.refresh()
 		action = screen.getch()
 		if action == curses.KEY_UP:
