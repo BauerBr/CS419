@@ -28,7 +28,7 @@ class MyApp(object):
     con = connectToDatabase(self.screen)
 
     # Menu starting point
-    printMainMenu(self.screen,con)
+    printMainMenu(self.screen, con)
 
 
 
@@ -46,75 +46,76 @@ class MyApp(object):
 def connectToDatabase(stdscr):
 
   # Collect db data and validate connection
-  while(1):
+    while(1):
 
-    # Clear the curses screen
-    stdscr.clear()
-
-    # Overwrite connection data in debug mode
-    if DEBUG:
-        username = "root"
-        host = "localhost"
-        password = "detachment"
-        database = "employees"
-
-    else:
-        # Collect necessary connection info
-        stdscr.addstr(10, 5, "Enter the database host address:")
-        host = stdscr.getstr(10, 38, 15)
+        # Clear the curses screen
         stdscr.clear()
 
-        stdscr.addstr(10, 5, "Enter the database username:")
-        username = stdscr.getstr(10, 38, 15)
-        stdscr.clear()
+        # Overwrite connection data in debug mode
+        if DEBUG:
+            username = "root"
+            host = "localhost"
+            password = "detachment"
+            database = "employees"
 
-        stdscr.addstr(10, 5, "Enter the database name:")
-        database = stdscr.getstr(10, 38, 15)
-        stdscr.clear()
-
-        stdscr.addstr(10, 5, "Enter the database password:")
-        password = stdscr.getstr(10, 38, 15)
-        stdscr.clear()
-
-    # Attempt to connect with db
-    con = database_queries.dbConnect(username, password, database, host) 
-
-    # Connection successful
-    if con['state'] == 0:
-      # Inform user of connection      
-      stdscr.addstr(10, 5, "Connection to Database Successful! Press Enter to Continue...")
-      stdscr.getstr(1, 1, 0)
-      break
-
-    # Connection Failed
-    else:
-        selection = -2
-        option = 0
-        while selection < 0:
-            graphics = [0]*2
-            graphics[option] = curses.A_REVERSE
-            failure_string = "Connection to Database Failed: %s" % (con['msg'])
-            stdscr.addstr(10, 5, failure_string)
-            stdscr.addstr(13, 13, "Retry",graphics[0])
-            stdscr.addstr(13, 35, "Exit Program",graphics[1])
-            stdscr.refresh()
-        # Collect user's navigation selection
-            action = stdscr.getch()
-            if action == curses.KEY_RIGHT:
-                option = (option - 1) % 2
-            elif action == curses.KEY_LEFT:
-                option = (option + 1) % 2
-            elif action == (ord('\n')):
-                selection = option
+        else:
+            # Collect necessary connection info
+            stdscr.addstr(10, 5, "Enter the database host address:")
+            host = stdscr.getstr(10, 38, 15)
             stdscr.clear()
-        # If user wants to disconnect... Exit
-            #if selection == 0:
-                #add in retry statement
-        # Return to main menu
-            if selection == 1:
-                curses.endwin()
-                exit()
-  # Return successful connection
+
+            stdscr.addstr(10, 5, "Enter the database username:")
+            username = stdscr.getstr(10, 38, 15)
+            stdscr.clear()
+
+            stdscr.addstr(10, 5, "Enter the database name:")
+            database = stdscr.getstr(10, 38, 15)
+            stdscr.clear()
+
+            stdscr.addstr(10, 5, "Enter the database password:")
+            password = stdscr.getstr(10, 38, 15)
+            stdscr.clear()
+
+        # Attempt to connect with db
+        con = database_queries.dbConnect(username, password, database, host) 
+
+        # Connection successful
+        if con['state'] == 0:
+          # Inform user of connection      
+          stdscr.addstr(10, 5, "Connection to Database Successful! Press Enter to Continue...")
+          stdscr.getstr(1, 1, 0)
+          break
+
+        # Connection Failed
+        else:
+            selection = -2
+            option = 0
+            while selection < 0:
+                graphics = [0]*2
+                graphics[option] = curses.A_REVERSE
+                failure_string = "Connection to Database Failed: %s" % (con['msg'])
+                stdscr.addstr(10, 5, failure_string)
+                stdscr.addstr(13, 13, "Retry",graphics[0])
+                stdscr.addstr(13, 35, "Exit Program",graphics[1])
+                stdscr.refresh()
+            # Collect user's navigation selection
+                action = stdscr.getch()
+                if action == curses.KEY_RIGHT:
+                    option = (option - 1) % 2
+                elif action == curses.KEY_LEFT:
+                    option = (option + 1) % 2
+                elif action == (ord('\n')):
+                    selection = option
+                stdscr.clear()
+            # If user wants to disconnect... Exit
+                #if selection == 0:
+                    #add in retry statement
+            # Return to main menu
+                if selection == 1:
+                    curses.endwin()
+                    exit()
+      
+    # Return successful connection
     return con
 
 
@@ -129,7 +130,7 @@ def connectToDatabase(stdscr):
 # makes use of the con[] dictionary provided by
 # databases_queries.py.
 # ==================================================
-def printMainMenu(stdscr,con):
+def printMainMenu(stdscr, con):
     stdscr.clear()
     stdscr.nodelay(0)
     stdscr.keypad(1)
@@ -140,11 +141,11 @@ def printMainMenu(stdscr,con):
         stdscr.border(0)
         # Print main menu header information
         stdscr.addstr(1, 2, "HOST IP:")
-        #stdscr.addstr(1, 60, con['host'])
+        stdscr.addstr(1, 60, con['host'])
         stdscr.addstr(2, 2, "DB USER:")
-        #stdscr.addstr(2, 60, con['user'])
+        stdscr.addstr(2, 60, con['user'])
         stdscr.addstr(3, 2, "DATABASE NAME:")
-        #stdscr.addstr(3, 60, con['database'])
+        stdscr.addstr(3, 60, con['database'])
 
         stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
         stdscr.addstr(6, 30, "-- MAIN MENU --")
@@ -243,13 +244,13 @@ def printViewEditSubmenu(stdscr,con):
 
         # Navigate to submenu
         if selection == 0:
-            printViewTableSubmenu(stdscr,con)
+            printViewTableSubmenu(stdscr, con)
         # Navigate to CreateTable
         elif selection == 1:
-            printEditTableSubmenu(stdscr,con)
+            printEditTableSubmenu(stdscr, con)
         # Navigate to DeleteTable
         elif selection == 2:
-            printMainMenu(stdscr,con)
+            printMainMenu(stdscr, con)
 
         # if user_input == ord('1'):
         #     printViewTableSubmenu(stdscr,con)
@@ -564,7 +565,7 @@ def printEditTableContentsSubmenu(stdscr, con, idx):
 #---------------------------------------------------------------------
 
     # Attempt to submit query
-    database_queries.dbQuery(con, user_input)
+    con = database_queries.dbQuery(con, user_input)
 
     # Edit query success; return to main menu
     if queryCheck(con) == 1:
@@ -628,7 +629,7 @@ def printCreateTableSubmenu(stdscr,con):
 #---------------------------------------------------------------------
 
     # Attempt to submit query
-    database_queries.dbQuery(con, user_input)
+    con = database_queries.dbQuery(con, user_input)
 
     # create query success; return to main menu
     if queryCheck(con) == 1:
@@ -712,7 +713,7 @@ def printDeleteTableSubmenu(stdscr,con):
 #---------------------------------------------------------------------
 
     # Attempt to submit query
-    database_queries.dbQuery(con, user_input)
+    con = database_queries.dbQuery(con, user_input)
 
     # Delete query success; return to main menu
     if queryCheck(con) == 1:
@@ -814,7 +815,7 @@ def printLogOffSubMenu(stdscr,con):
     # If user wants to disconnect... Exit
         if selection == 0:
             # Close connection with db and exit
-            database_queries.dbClose(con)
+            con = database_queries.dbClose(con)
             curses.endwin()
             exit()
 
