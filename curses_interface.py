@@ -397,10 +397,16 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
         s += 15
 
     # Print out each row line by line up to 6 per screen
+    count = 0
     for idx, row in enumerate(con['rows']):
-        row_string = "[" + str(idx + 1) + "] " + str(row)
-        stdscr.addstr(y, x, row_string)    
+        count += 1
+        row_count = "[" + str(count) + "] :"
+        stdscr.addstr(y, x, row_count)
+        for idx, col in enumerate(con['cols']):
+            x += 14
+            stdscr.addstr(y, x, str(row[col]))   
         y += 2
+        x = 8
 
         # Detect the last row that can fit on a page (6th)
         if idx != 0 and idx % 5 == 0:
