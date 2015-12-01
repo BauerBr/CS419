@@ -169,6 +169,8 @@ def dbQuery(cnx, queryString):
     try:
       cursor.execute(query)
       cnx['rows'] = cursor.fetchall()
+      cnx['cols'] = cursor.column_names
+      cnx['cnt'] = cursor.rowcount
       cnx['msg'] = 'Successful SELECT submitted'
       cnx['row_cnt'] = len(cnx['rows'])
       cursor.close()

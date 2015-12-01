@@ -54,9 +54,9 @@ def connectToDatabase(stdscr):
         # Overwrite connection data in debug mode
         if DEBUG:
             username = "root"
-            host = "localhost"
-            password = "detachment"
-            database = "employees"
+            host = "192.168.1.181"
+            password = "password"
+            database = "TestDC"
 
         else:
             # Collect necessary connection info
@@ -230,7 +230,6 @@ def printViewEditSubmenu(stdscr,con):
         stdscr.addstr(11, 6, "Edit Table",graphics[1])
         stdscr.addstr(13, 6, "Back to Main Menu",graphics[2])
         
-
         stdscr.refresh()
          # Collect user's navigation selection
         action = stdscr.getch()
@@ -382,8 +381,21 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
 #---------------------------------------------------------------------
 # TODO: NEED TO REDO FOR LOOP TO PRINT OUT ROWS WITH LINES AND COLUMNS
 #---------------------------------------------------------------------
-    y = 8
-    x = 6 
+    y = 12
+    x = 8
+    c = 10 # New Y Coordinate for columns
+    s = 14 # New X Coordinate for columns
+
+    totalRows = "Number of Rows: " + str(con['cnt'])
+    stdscr.addstr(8, s, totalRows)
+
+    # TODO: add borders
+    # Printing Attribute names. https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-column-names.html
+    for idx, col in enumerate(con['cols']):
+        col_string = str(col)
+        stdscr.addstr(c, s, col_string)
+        s += 15
+
     # Print out each row line by line up to 6 per screen
     for idx, row in enumerate(con['rows']):
         row_string = "[" + str(idx + 1) + "] " + str(row)
