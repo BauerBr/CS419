@@ -427,7 +427,7 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
                 stdscr.addstr(y, mid, "|")
                 stdscr.addstr(y, x, row_string)   
         y += 2
-    y -= 2
+    y += 1
     stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")    
 
     # Detect the last row that can fit on a page (6th)
