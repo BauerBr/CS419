@@ -394,6 +394,8 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
     # Printing Attribute names. https://dev.mysql.com/doc/connector-python/en/connector-python-api-mysqlcursor-column-names.html
     for idx, col in enumerate(con['cols']):
         col_string = str(col)
+        if len(col_string) >= 11:   # Trimming column name if it is too long.
+            col_string = col_string[:10]
         stdscr.addstr(c, s, col_string)
         if idx != 1:
             #mid = int(math.ceil(s / 2))
@@ -409,11 +411,15 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
         x = 5
         stdscr.addstr(y, x, row_count)
         for idx, col in enumerate(con['cols']):
-            if idx == 1:
+            row_string = str(row[col])
+            if len(row_string) >= 11:   # Trimming column name if it is too long.
+                row_string = row_string[:10]
+            if idx == 0:
                 x = 14   
-                stdscr.addstr(y, x, str(row[col]))
-            x += 15
-            stdscr.addstr(y, x, str(row[col]))   
+                stdscr.addstr(y, x, row_string)
+            else:
+                x += 15
+                stdscr.addstr(y, x, row_string)   
         y += 2
         
 
