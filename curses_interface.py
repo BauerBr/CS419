@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import curses
+import math
 import database_queries
 from time import sleep
 
@@ -368,7 +369,7 @@ def printViewTableSubmenu(stdscr,con):
 # ==================================================
 def printViewTableContentsSubmenu(stdscr, con, idx):
     stdscr.clear()
-    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+    stdscr.addstr(4, 2, "--------------------------------------------------------------------------------------------------------------------------------------------------------")
     stdscr.addstr(6, 30, "-- VIEW TABLE --")
     stdscr.addstr(22, 45, "[B] Back")    
     
@@ -382,7 +383,7 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
 # TODO: NEED TO REDO FOR LOOP TO PRINT OUT ROWS WITH LINES AND COLUMNS
 #---------------------------------------------------------------------
     y = 12
-    x = 8
+    x = 14
     c = 10 # New Y Coordinate for columns
     s = 14 # New X Coordinate for columns
 
@@ -394,19 +395,27 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
     for idx, col in enumerate(con['cols']):
         col_string = str(col)
         stdscr.addstr(c, s, col_string)
+        if idx != 1:
+            #mid = int(math.ceil(s / 2))
+            mid = int(math.ceil((s + 15) - 3.5))
+            #stdscr.addstr(c, mid, "|")
         s += 15
 
     # Print out each row line by line up to 6 per screen
     count = 0
     for idx, row in enumerate(con['rows']):
         count += 1
-        row_count = "[" + str(count) + "] :"
+        row_count = "[" + str(count) + "]  "
+        x = 5
         stdscr.addstr(y, x, row_count)
         for idx, col in enumerate(con['cols']):
-            x += 14
+            if idx == 1:
+                x = 14   
+                stdscr.addstr(y, x, str(row[col]))
+            x += 15
             stdscr.addstr(y, x, str(row[col]))   
         y += 2
-        x = 8
+        
 
         # Detect the last row that can fit on a page (6th)
         if idx != 0 and idx % 5 == 0:
@@ -650,7 +659,7 @@ def printCreateTableSubmenu(stdscr,con):
     con = database_queries.dbQuery(con, user_input)
 
     # create query success; return to main menu
-    if queryCheck(con) == 1:
+    if queryCheck(con) == 0:
         stdscr.clear()
         stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
         stdscr.addstr(6, 28, "-- CREATE TABLE --")
