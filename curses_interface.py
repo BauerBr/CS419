@@ -405,68 +405,109 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
     stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")    
     y += 2
     # Print out each row line by line up to 6 per screen
-    count = 0
-    for idx, row in enumerate(con['rows']):
-        count += 1
-        row_count = "[" + str(count) + "]  "
-        x = 5
-        stdscr.addstr(y, x, row_count)
-        for idx, col in enumerate(con['cols']):
-
-            row_string = str(row[col])
-            if len(row_string) >= 11:   # Trimming column name if it is too long.
-                row_string = row_string[:10]
-            if idx == 0:
-                x = 14 
-                mid = int(math.ceil((x) - 3.5))
-                stdscr.addstr(y, mid, "|")  
-                stdscr.addstr(y, x, row_string)
-            else:
-                x += 15
-                mid = int(math.ceil((x) - 3.5))
-                stdscr.addstr(y, mid, "|")
-                stdscr.addstr(y, x, row_string)   
+    if con['cnt'] == 0:
+        stdscr.addstr(y, 14, "No Rows in Table!")
         y += 2
-    y += 1
+        stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")    
+
+        # Collect user's navigation selection
+        user_input = stdscr.getch()
+        if user_input == ord('b') or user_input == ord('B'):
+            printViewTableSubmenu(stdscr,con)
+
+        # TODO: need to refactor with hightlight selection
+        curses.endwin() # can erase once highlight is implemented
+        exit()
+    else:
+        count = 0
+        for idx, row in enumerate(con['rows']):
+            count += 1
+            row_count = "[" + str(count) + "]  "
+            x = 5
+            stdscr.addstr(y, x, row_count)
+            for ndx, col in enumerate(con['cols']): #Created new counter 'ndx' for traversing within the SQL row.
+
+                row_string = str(row[col])
+                if len(row_string) >= 11:   # Trimming column name if it is too long.
+                    row_string = row_string[:10]
+                if ndx == 0:    # Do this for the first value.
+                    x = 14 
+                    mid = int(math.ceil((x) - 3.5))
+                    stdscr.addstr(y, mid, "|")  
+                    stdscr.addstr(y, x, row_string)
+                else:
+                    x += 15
+                    mid = int(math.ceil((x) - 3.5))
+                    stdscr.addstr(y, mid, "|")
+                    stdscr.addstr(y, x, row_string)   
+                #y += 2
+            # Detect the last row that can fit on a page (6th)
+                if idx != 0 and idx % 5 == 0:
+                    
+                    # Detect if there are add'l rows past multiple of 6th
+                    if (idx + 1) < con['row_cnt']:
+                        y += 2
+                        stdscr.addstr(y, 15, "[N] Next")
+                    
+                    #Collect user's navigation selection
+                    user_input = stdscr.getch()
+#---------------------------------------------------------------------
+# TODO: NEED TO REFACTOR WITH HIGHLIGHT
+#---------------------------------------------------------------------
+
+                    # Navigate to submenu
+                    if user_input == ord('b') or user_input == ord('B'):
+                        printViewTableSubmenu(stdscr,con)
+                    # Paginate
+                    elif user_input == ord('n') or user_input == ord('N'):
+                        stdscr.clear()
+                        stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+                        stdscr.addstr(6, 30, "-- VIEW TABLE --")
+                        stdscr.addstr(22, 45, "[B] Back")
+                        y = 12
+                        x = 14
+                # Collect user's navigation selection
+                user_input = stdscr.getch()
+            y += 2
     stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")    
 
-    # Detect the last row that can fit on a page (6th)
-    if idx != 0 and idx % 5 == 0:
+#     # Detect the last row that can fit on a page (6th)
+#     if idx != 0 and idx % 5 == 0:
             
-        # Detect if there are add'l rows past multiple of 6th
-        if (idx + 1) < con['row_cnt']:
-            stdscr.addstr(22, 15, "[N] Next")
+#         # Detect if there are add'l rows past multiple of 6th
+#         if (idx + 1) < con['row_cnt']:
+#             stdscr.addstr(22, 15, "[N] Next")
             
-        #Collect user's navigation selection
-        user_input = stdscr.getch()
+#         #Collect user's navigation selection
+#         user_input = stdscr.getch()
 
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
+# #---------------------------------------------------------------------
+# # TODO: NEED TO REFACTOR WITH HIGHLIGHT
+# #---------------------------------------------------------------------
 
-            # Navigate to submenu
-        if user_input == ord('b') or user_input == ord('B'):
-            printViewEditSubmenu(stdscr,con)
+#             # Navigate to submenu
+#         if user_input == ord('b') or user_input == ord('B'):
+#             printViewEditSubmenu(stdscr,con)
 
-        # Paginate
-        elif user_input == ord('n') or user_input == ord('N'):
-            stdscr.clear()
-            stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
-            stdscr.addstr(6, 30, "-- VIEW TABLE --")
-            stdscr.addstr(22, 45, "[B] Back")
-            y = 8
-            x = 6
+#         # Paginate
+#         elif user_input == ord('n') or user_input == ord('N'):
+#             stdscr.clear()
+#             stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+#             stdscr.addstr(6, 30, "-- VIEW TABLE --")
+#             stdscr.addstr(22, 45, "[B] Back")
+#             y = 8
+#             x = 6
 
-    # Collect user's navigation selection
-    user_input = stdscr.getch()
+#     # Collect user's navigation selection
+#     user_input = stdscr.getch()
 
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
+# #---------------------------------------------------------------------
+# # TODO: NEED TO REFACTOR WITH HIGHLIGHT
+# #---------------------------------------------------------------------
 
-    # Navigate to submenu
-    if user_input == ord('b') or user_input == ord('B'):
-        printViewEditSubmenu(stdscr,con)
+#     # Navigate to submenu
+#     if user_input == ord('b') or user_input == ord('B'):
+#         printViewEditSubmenu(stdscr,con)
 
     
 
