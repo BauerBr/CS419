@@ -57,7 +57,7 @@ def connectToDatabase(stdscr):
             username = "root"
             host = "192.168.1.181"
             password = "password"
-            database = "TestDC"
+            database = "employees"
 
         else:
             # Collect necessary connection info
@@ -425,6 +425,35 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
             row_count = "[" + str(count) + "]  "
             x = 5
             stdscr.addstr(y, x, row_count)
+
+        #Detect the last row that can fit on a page (6th)
+            if idx != 0 and idx % 5 == 0:
+                
+                # Detect if there are add'l rows past multiple of 6th
+                if (idx + 1) < con['row_cnt']:
+                    y += 2
+                    stdscr.addstr(y, 15, "[N] Next")
+                
+                #Collect user's navigation selection
+                user_input = stdscr.getch()
+#---------------------------------------------------------------------
+# TODO: NEED TO REFACTOR WITH HIGHLIGHT
+#---------------------------------------------------------------------
+
+                # Navigate to submenu
+                if user_input == ord('b') or user_input == ord('B'):
+                    printViewTableSubmenu(stdscr,con)
+                # Paginate
+                elif user_input == ord('n') or user_input == ord('N'):
+                    stdscr.clear()
+                    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+                    stdscr.addstr(6, 30, "-- VIEW TABLE --")
+                    stdscr.addstr(22, 45, "[B] Back")
+                    y = 12
+                    x = 14
+            # Collect user's navigation selection
+            user_input = stdscr.getch()
+
             for ndx, col in enumerate(con['cols']): #Created new counter 'ndx' for traversing within the SQL row.
 
                 row_string = str(row[col])
@@ -441,33 +470,7 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
                     stdscr.addstr(y, mid, "|")
                     stdscr.addstr(y, x, row_string)   
                 #y += 2
-            # Detect the last row that can fit on a page (6th)
-                if idx != 0 and idx % 5 == 0:
-                    
-                    # Detect if there are add'l rows past multiple of 6th
-                    if (idx + 1) < con['row_cnt']:
-                        y += 2
-                        stdscr.addstr(y, 15, "[N] Next")
-                    
-                    #Collect user's navigation selection
-                    user_input = stdscr.getch()
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
 
-                    # Navigate to submenu
-                    if user_input == ord('b') or user_input == ord('B'):
-                        printViewTableSubmenu(stdscr,con)
-                    # Paginate
-                    elif user_input == ord('n') or user_input == ord('N'):
-                        stdscr.clear()
-                        stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
-                        stdscr.addstr(6, 30, "-- VIEW TABLE --")
-                        stdscr.addstr(22, 45, "[B] Back")
-                        y = 12
-                        x = 14
-                # Collect user's navigation selection
-                user_input = stdscr.getch()
             y += 2
     stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")    
 
