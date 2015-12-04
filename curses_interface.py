@@ -370,8 +370,7 @@ def printViewTableSubmenu(stdscr,con):
 def printViewTableContentsSubmenu(stdscr, con, idx):
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
-    stdscr.addstr(6, 30, "-- VIEW TABLE --")
-    stdscr.addstr(22, 45, "[B] Back")    
+    stdscr.addstr(6, 30, "-- VIEW TABLE --")  
     
     # Create the query string to retrieve the contents of the selected table
     table_string = "SELECT * FROM " + str(con['tables'][idx][0])
@@ -404,6 +403,7 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
         s += 15
     stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")    
     y += 2
+
     # Print out each row line by line up to 6 per screen
     if con['cnt'] == 0:
         stdscr.addstr(y, 14, "No Rows in Table!")
@@ -419,20 +419,18 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
         curses.endwin() # can erase once highlight is implemented
         exit()
     else:
+        mybool = False
         count = 0
         for idx, row in enumerate(con['rows']):
-            count += 1
-            row_count = "[" + str(count) + "]  "
-            x = 5
-            stdscr.addstr(y, x, row_count)
 
         #Detect the last row that can fit on a page (6th)
-            if idx != 0 and idx % 5 == 0:
-                
+            if idx != 0 and idx % 11 == 0:
+                mybool = True
                 # Detect if there are add'l rows past multiple of 6th
                 if (idx + 1) < con['row_cnt']:
                     y += 2
                     stdscr.addstr(y, 15, "[N] Next")
+                    stdscr.addstr(y, 45, "[B] Back")  
                 
                 #Collect user's navigation selection
                 user_input = stdscr.getch()
@@ -448,15 +446,18 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
                     stdscr.clear()
                     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
                     stdscr.addstr(6, 30, "-- VIEW TABLE --")
-                    stdscr.addstr(22, 45, "[B] Back")
                     y = 12
                     x = 14
             # Collect user's navigation selection
-            user_input = stdscr.getch()
-
+            #user_input = stdscr.getch()
+            count += 1
+            row_count = "[" + str(count) + "]  "
+            x = 5
+            stdscr.addstr(y, x, row_count)
             for ndx, col in enumerate(con['cols']): #Created new counter 'ndx' for traversing within the SQL row.
 
                 row_string = str(row[col])
+                #DO NOT TOUCH THIS LINE
                 if len(row_string) >= 11:   # Trimming column name if it is too long.
                     row_string = row_string[:10]
                 if ndx == 0:    # Do this for the first value.
@@ -472,6 +473,13 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
                 #y += 2
 
             y += 2
+            #stdscr.addstr(y, 45, "[B] Back")  
+
+        # y += 2
+        if mybool == False:
+            stdscr.addstr(y, 45, "[B] Back")
+            y += 2  
+    
     stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")    
 
 #     # Detect the last row that can fit on a page (6th)
