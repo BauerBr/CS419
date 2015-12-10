@@ -323,42 +323,40 @@ def printViewTableSubmenu(stdscr,con):
                 
                 #Collect user's navigation selection
                 user_input = stdscr.getch()
-
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
-
+                p = 1
+                while(p == 1):
+                    curses.noecho()
                 # Navigate to submenu
-                if user_input == ord('b') or user_input == ord('B'):
-                    printViewEditSubmenu(stdscr,con)
+                    if user_input == ord('b') or user_input == ord('B'):
+                        printViewEditSubmenu(stdscr,con)
 
                 # Paginate
-                elif user_input == ord('n') or user_input == ord('N'):
-                    stdscr.clear()
-                    stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
-                    stdscr.addstr(6, 30, "-- VIEW TABLE --")
-                    stdscr.addstr(22, 45, "[B] Back")
-                    y = 8
-                    x = 6
+                    elif user_input == ord('n') or user_input == ord('N'):
+                    	stdscr.clear()
+                    	stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
+                    	stdscr.addstr(6, 30, "-- VIEW TABLE --")
+                    	stdscr.addstr(22, 45, "[B] Back")
+                    	y = 8
+                    	x = 6
+                        p = 2
 
                 # Navigate to view table
-                elif user_input >= ord('1') and user_input <= unichr(con['tbl_cnt']):
-                    printViewTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
+                    elif user_input >= ord('1') and user_input <= unichr(con['tbl_cnt']):
+                    	printViewTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
 
         # Collect user's navigation selection
-        user_input = stdscr.getch()
+        while(1):
+            curses.noecho()
+            user_input = stdscr.getch()
 
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
 
         # Navigate to submenu
-        if user_input == ord('b') or user_input == ord('B'):
-            printViewEditSubmenu(stdscr,con)
+            if user_input == ord('b') or user_input == ord('B'):
+                printViewEditSubmenu(stdscr,con)
 
         # Navigate to view table
-        elif user_input >= ord('1') and user_input <= unichr(con['tbl_cnt']):
-            printViewTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
+            elif user_input >= ord('1') and user_input <= unichr(con['tbl_cnt']):
+                printViewTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
 
 
 
@@ -415,13 +413,13 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
 		y += 2
 		stdscr.addstr(y, 14, "[B] Back")
         # Collect user's navigation selection
-		user_input = stdscr.getch()
-		if user_input == ord('b') or user_input == ord('B'):
-			printViewTableSubmenu(stdscr,con)
-
-        # TODO: need to refactor with hightlight selection
-		curses.endwin() # can erase once highlight is implemented
-		exit()
+		
+		while(1):
+			curses.noecho()
+			user_input = stdscr.getch()
+			if user_input == ord('b') or user_input == ord('B'):
+				printViewTableSubmenu(stdscr,con)
+				
     else:
         mybool = False
         count = 0
@@ -440,6 +438,7 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
                 user_input = stdscr.getch()
 
                 # Navigate to submenu
+                curses.noecho()
                 if user_input == ord('b') or user_input == ord('B'):
                     printViewTableSubmenu(stdscr,con)
                 # Paginate
@@ -534,16 +533,12 @@ def printEditTableSubmenu(stdscr,con):
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 30, "-- EDIT TABLE --")
-    graphics = [0]*2
-    option = 0
-    graphics[option] = curses.A_REVERSE
-    stdscr.addstr(22, 45, "Back",graphics[0])
+    stdscr.addstr(22, 45, "[B] Back")
 
     # Attempt to get tables in database so that they can be printed
     con = database_queries.dbTables(con) 
 	 
     # Detect if no tables exist
-    selection = -1
     if con['tbl_cnt'] == 0:
     	while selection < 0:
         	stdscr.addstr(9, 6, "No tables in database")
@@ -606,18 +601,16 @@ def printEditTableSubmenu(stdscr,con):
                 
         # Collect user's navigation selection
         user_input = stdscr.getch()
-        
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
-
+    
         # Navigate to submenu
-        if user_input == ord('b') or user_input == ord('B'):
-            printViewEditSubmenu(stdscr,con)
+    	while(1):
+    		curses.noecho()
+        	if user_input == ord('b') or user_input == ord('B'):
+        		printViewEditSubmenu(stdscr,con)
 
         # Navigate to view table
-        elif user_input >= ord('1') and user_input <= unichr(con['tbl_cnt']):
-            printEditTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
+        	elif user_input >= ord('1') and user_input <= unichr(con['tbl_cnt']):
+           		printEditTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
 
 
 
@@ -633,6 +626,7 @@ def printEditTableSubmenu(stdscr,con):
 #
 # ==================================================
 def printEditTableContentsSubmenu(stdscr, con, idx):
+    curses.echo()
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 28, "-- EDIT TABLE --")
@@ -694,6 +688,7 @@ def printEditTableContentsSubmenu(stdscr, con, idx):
 # it will work. 
 # ==================================================
 def printCreateTableSubmenu(stdscr,con):
+    curses.echo()
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 28, "-- CREATE TABLE --")
@@ -775,6 +770,7 @@ def queryCheck(con):
 # it will work. 
 # ==================================================
 def printDeleteTableSubmenu(stdscr,con):
+    curses.echo()
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 28, "-- DELETE TABLE --")
