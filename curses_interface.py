@@ -4,7 +4,7 @@ import math
 import database_queries
 from time import sleep
 
-DEBUG = True # automate input vs. manual db connection info
+DEBUG = True #automate input vs. manual db connection info
 
 
 # ==================================================
@@ -21,7 +21,7 @@ class MyApp(object):
     
     # Init the main curses program
     self.screen = stdscreen
-    curses.curs_set(0)
+    #curses.curs_set(0)
     curses.cbreak() 
     curses.echo()
 
@@ -55,9 +55,9 @@ def connectToDatabase(stdscr):
         # Overwrite connection data in debug mode
         if DEBUG:
             username = "root"
-            host = "192.168.1.181"
-            password = "password"
-            database = "employees"
+            host = "192.168.1.3"
+            password = ""
+            database = "test"
 
         else:
             # Collect necessary connection info
@@ -277,32 +277,35 @@ def printViewTableSubmenu(stdscr,con):
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 30, "-- VIEW TABLE --")
-    stdscr.addstr(22, 45, "[B] Back")
+    
 
     # Attempt to get tables in database so that they can be printed
     con = database_queries.dbTables(con) 
 
     # Detect if no tables exist
+    
     if con['tbl_cnt'] == 0:
-        stdscr.addstr(9, 6, "No tables in database")
+		graphics = [0]*2
+		stdscr.addstr(22, 45, "Back",graphics[0])
+		selection = -1
+		while selection < 0:
+			option = 0
+			graphics[option] = curses.A_REVERSE
+			stdscr.addstr(9, 6, "No tables in database")
         
-        # Collect user's navigation selection
-        user_input = stdscr.getch()
-        
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
+        	# Collect user's navigation selection
+			action = stdscr.getch()
+			if action == (ord('\n')):
+				selection = option
+				stdscr.clear()
 
-        # Navigate to submenu
-        if user_input == ord('b') or user_input == ord('B'):
-            printViewEditSubmenu(stdscr,con)
-
-        # TODO: need to refactor with hightlight selection
-        curses.endwin() # can erase once highlight is implemented
-        exit()
+        	# Navigate to viewEdit
+			if selection == 0:
+				printViewEditSubmenu(stdscr,con)
 
     # At least 1 table exists so print them
     else:
+    	stdscr.addstr(22, 45, "[B] Back",)
         y = 8
         x = 6 
         # Print out each table name line by line up to 6 per screen
@@ -401,23 +404,24 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
             col_string = col_string[:10]
         stdscr.addstr(c, s, col_string)
         s += 15
-    stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")    
-    y += 2
+	stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")    
+	y += 2
 
     # Print out each row line by line up to 6 per screen
     if con['cnt'] == 0:
-        stdscr.addstr(y, 14, "No Rows in Table!")
-        y += 2
-        stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")    
-
+		stdscr.addstr(y, 14, "No Rows in Table!")
+		y += 2
+		stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")
+		y += 2
+		stdscr.addstr(y, 14, "[B] Back")
         # Collect user's navigation selection
-        user_input = stdscr.getch()
-        if user_input == ord('b') or user_input == ord('B'):
-            printViewTableSubmenu(stdscr,con)
+		user_input = stdscr.getch()
+		if user_input == ord('b') or user_input == ord('B'):
+			printViewTableSubmenu(stdscr,con)
 
         # TODO: need to refactor with hightlight selection
-        curses.endwin() # can erase once highlight is implemented
-        exit()
+		curses.endwin() # can erase once highlight is implemented
+		exit()
     else:
         mybool = False
         count = 0
@@ -434,9 +438,6 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
                 
                 #Collect user's navigation selection
                 user_input = stdscr.getch()
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
 
                 # Navigate to submenu
                 if user_input == ord('b') or user_input == ord('B'):
@@ -533,29 +534,33 @@ def printEditTableSubmenu(stdscr,con):
     stdscr.clear()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 30, "-- EDIT TABLE --")
-    stdscr.addstr(22, 45, "[B] Back")
+    graphics = [0]*2
+    option = 0
+    graphics[option] = curses.A_REVERSE
+    stdscr.addstr(22, 45, "Back",graphics[0])
 
     # Attempt to get tables in database so that they can be printed
     con = database_queries.dbTables(con) 
-
+	 
     # Detect if no tables exist
+    selection = -1
     if con['tbl_cnt'] == 0:
+    	while selection < 0:
+        	stdscr.addstr(9, 6, "No tables in database")
+        
+        	# Collect user's navigation selection
+        	action = stdscr.getch()
+        	if action == (ord('\n')):
+				selection = option
+				stdscr.clear()
+
+        	# Navigate to viewEdit
+        	if selection == 0:
+				printViewEditSubmenu(stdscr,con)
         stdscr.addstr(9, 6, "No tables in database")
         
         # Collect user's navigation selection
         user_input = stdscr.getch()
-
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
-        
-        # Navigate to submenu
-        if user_input == ord('b') or user_input == ord('B'):
-            printViewEditSubmenu(stdscr,con)
-
-        # TODO: need to refactor with hightlight selection
-        curses.endwin() # can erase once highlight is implemented
-        exit()
 
     # At least 1 table exists so print them
     else:
@@ -650,9 +655,6 @@ def printEditTableContentsSubmenu(stdscr, con, idx):
     # Collect user input
     user_input = stdscr.getstr(12, 7, 66)
     
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
 
     # Attempt to submit query
     con = database_queries.dbQuery(con, user_input)
@@ -714,9 +716,6 @@ def printCreateTableSubmenu(stdscr,con):
     # Collect user input
     user_input = stdscr.getstr(12, 7, 66)
 
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
 
     # Attempt to submit query
     con = database_queries.dbQuery(con, user_input)
@@ -798,9 +797,6 @@ def printDeleteTableSubmenu(stdscr,con):
     # Collect user input
     user_input = stdscr.getstr(12, 7, 66)
 
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
 
     # Attempt to submit query
     con = database_queries.dbQuery(con, user_input)
