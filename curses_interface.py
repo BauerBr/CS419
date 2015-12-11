@@ -24,7 +24,6 @@ class MyApp(object):
     #curses.curs_set(0)
     curses.cbreak() 
     curses.echo()
-    curses.resizeterm(135,135) 
     # Connect to database
     con = connectToDatabase(self.screen)
 
@@ -46,20 +45,57 @@ class MyApp(object):
 # ==================================================
 def connectToDatabase(stdscr):
 
+
+    x,y = stdscr.getmaxyx()
+    yTest = 130
+    xTest = 70
+    while x < xTest and y < yTest:
+        stdscr.clear()
+        stdscr.addstr(10, 5, "Please make your terminal bigger!")
+        stdscr.addstr(11, 5, "Make larger until you see the welcome splash screen")
+        x,y = stdscr.getmaxyx()
+        stdscr.getstr(1, 1, 0)
+        if x < 120 or y < 60:
+            stdscr.clear()
+            stdscr.addstr(12, 5, "Terminal is almost big enough!")
+        stdscr.clear()
+
   # Collect db data and validate connection
     while(1):
-
         # Clear the curses screen
         stdscr.clear()
 
         # Overwrite connection data in debug mode
         if DEBUG:
             username = "root"
-            host = "192.168.0.109"
+            host = "192.168.1.3"
             password = ""
             database = "test"
 
         else:
+            stdscr.clear()
+            stdscr.nodelay(0)
+            stdscr.keypad(1)
+            selection = -2
+            option = 0
+
+            while selection < 0:
+                graphics = [0]*5
+                graphics[option] = curses.A_REVERSE
+                #ASCII art creddited to: http://patorjk.com/software/taag/#p=display&f=Graffiti&t=Welcome
+                stdscr.addstr(10, 5," __      __        __" )                         
+                stdscr.addstr(11, 5,"/  \    /  \ ____ |  |   ____  ____   _____   ____"  )
+                stdscr.addstr(12, 5,"\   \/\/   // __ \|  | _/ ___\/  _ \ /     \_/ __ \ ")
+                stdscr.addstr(13, 5," \        /\  ___/|  |_\  \__(  <_> )  Y Y  \  ___/ ")
+                stdscr.addstr(14, 5,"  \__/\  /  \___  >____/\___  >____/|__|_|  /\___  >")
+                stdscr.addstr(15, 5,"       \/       \/          \/            \/     \/")
+                stdscr.addstr(15, 5,"Press enter to start the application",graphics[0])
+
+                action = stdscr.getch()
+                if action == (ord('\n')):
+                    selection = option
+                    stdscr.clear()
+
             # Collect necessary connection info
             stdscr.addstr(10, 5, "Enter the database host address:")
             host = stdscr.getstr(10, 38, 15)
@@ -289,21 +325,14 @@ def printViewTableSubmenu(stdscr,con):
         # Collect user's navigation selection
         user_input = stdscr.getch()
         
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
 
         # Navigate to submenu
         if user_input == ord('b') or user_input == ord('B'):
             printViewEditSubmenu(stdscr,con)
 
-        # TODO: need to refactor with hightlight selection
-        curses.endwin() # can erase once highlight is implemented
-        exit()
 
     # At least 1 table exists so print them
     else:
-        
         y = 8
         x = 6 
         # Print out each table name line by line up to 6 per screen
@@ -322,15 +351,12 @@ def printViewTableSubmenu(stdscr,con):
                 #Collect user's navigation selection
                 user_input = stdscr.getch()
 
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
 
-                # Navigate to submenu
+                    # Navigate to submenu
                 if user_input == ord('b') or user_input == ord('B'):
                     printViewEditSubmenu(stdscr,con)
 
-                # Paginate
+                    # Paginate
                 elif user_input == ord('n') or user_input == ord('N'):
                     stdscr.clear()
                     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
@@ -339,24 +365,35 @@ def printViewTableSubmenu(stdscr,con):
                     y = 8
                     x = 6
 
-                # Navigate to view table
+                    # Navigate to view table
                 elif user_input >= ord('1') and user_input <= unichr(con['tbl_cnt']):
-                    printViewTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
+                    try:
+                        printViewTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
+                    except ValueError:
+                        printViewTableSubmenu(stdscr, con)
+
+                elif user_input == ord('\n'):
+                    printViewTableSubmenu(stdscr, con)
+                                
 
         # Collect user's navigation selection
         user_input = stdscr.getch()
 
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
 
         # Navigate to submenu
+
         if user_input == ord('b') or user_input == ord('B'):
             printViewEditSubmenu(stdscr,con)
 
-        # Navigate to view table
         elif user_input >= ord('1') and user_input <= unichr(con['tbl_cnt']):
-            printViewTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
+            try:
+                printViewTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
+            except ValueError:
+                printViewTableSubmenu(stdscr, con)   # Navigate to view table
+
+        if user_input == ord('\n'):
+            printViewTableSubmenu(stdscr, con)
+
 
 
 
@@ -379,9 +416,6 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
     # Conduct SELECT query; results in con['rows']
     con = database_queries.dbQuery(con, table_string)
 
-#---------------------------------------------------------------------
-# TODO: NEED TO REDO FOR LOOP TO PRINT OUT ROWS WITH LINES AND COLUMNS
-#---------------------------------------------------------------------
     y = 12
     x = 14
     c = 10 # New Y Coordinate for columns
@@ -416,9 +450,6 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
         if user_input == ord('b') or user_input == ord('B'):
             printViewTableSubmenu(stdscr,con)
 
-        # TODO: need to refactor with hightlight selection
-        curses.endwin() # can erase once highlight is implemented
-        exit()
     else:
         mybool = False
         count = 0
@@ -435,9 +466,6 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
                 
                 #Collect user's navigation selection
                 user_input = stdscr.getch()
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
 
                 # Navigate to submenu
                 if user_input == ord('b') or user_input == ord('B'):
@@ -481,7 +509,7 @@ def printViewTableContentsSubmenu(stdscr, con, idx):
             stdscr.addstr(y, 45, "[B] Back")
             y += 2  
     
-    stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------------------------------------------------------------------------")    
+    stdscr.addstr(y, 5, "--------------------------------------------------------------------------------------")    
 
 #     # Detect the last row that can fit on a page (6th)
 #     if idx != 0 and idx % 5 == 0:
@@ -546,17 +574,9 @@ def printEditTableSubmenu(stdscr,con):
         # Collect user's navigation selection
         user_input = stdscr.getch()
 
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
-        
         # Navigate to submenu
         if user_input == ord('b') or user_input == ord('B'):
             printViewEditSubmenu(stdscr,con)
-
-        # TODO: need to refactor with hightlight selection
-        curses.endwin() # can erase once highlight is implemented
-        exit()
 
     # At least 1 table exists so print them
     else:
@@ -578,10 +598,6 @@ def printEditTableSubmenu(stdscr,con):
                 #Collect user's navigation selection
                 user_input = stdscr.getch()
 
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
-
                 # Navigate to submenu
                 if user_input == ord('b') or user_input == ord('B'):
                     printViewEditSubmenu(stdscr,con)
@@ -597,15 +613,17 @@ def printEditTableSubmenu(stdscr,con):
 
                 # Navigate to view table
                 elif user_input >= ord('1') and user_input <= unichr(con['tbl_cnt']):
-                    printEditTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
+                    try:
+                        printViewTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
+                    except ValueError:
+                        printViewTableSubmenu(stdscr, con)
 
+                elif user_input == ord('\n'):
+                    printViewTableSubmenu(stdscr, con)
                 
         # Collect user's navigation selection
         user_input = stdscr.getch()
         
-#---------------------------------------------------------------------
-# TODO: NEED TO REFACTOR WITH HIGHLIGHT
-#---------------------------------------------------------------------
 
         # Navigate to submenu
         if user_input == ord('b') or user_input == ord('B'):
@@ -613,7 +631,13 @@ def printEditTableSubmenu(stdscr,con):
 
         # Navigate to view table
         elif user_input >= ord('1') and user_input <= unichr(con['tbl_cnt']):
-            printEditTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
+            try:
+                printViewTableContentsSubmenu(stdscr, con, int(chr(user_input)) - 1)
+            except ValueError:
+                printViewTableSubmenu(stdscr, con)
+
+        elif user_input == ord('\n'):
+            printViewTableSubmenu(stdscr, con)
 
 
 
@@ -630,6 +654,7 @@ def printEditTableSubmenu(stdscr,con):
 # ==================================================
 def printEditTableContentsSubmenu(stdscr, con, idx):
     stdscr.clear()
+    stdscr.refresh()
     stdscr.addstr(4, 2, "----------------------------------------------------------------------------")
     stdscr.addstr(6, 28, "-- EDIT TABLE --")
 
