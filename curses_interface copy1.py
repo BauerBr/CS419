@@ -4,7 +4,7 @@ import math
 import database_queries
 from time import sleep
 
-DEBUG = False # automate input vs. manual db connection info
+DEBUG = True # automate input vs. manual db connection info
 
 
 # ==================================================
@@ -24,7 +24,7 @@ class MyApp(object):
     #curses.curs_set(0)
     curses.cbreak() 
     curses.echo()
-    curses.resizeterm(135,135) 
+
     # Connect to database
     con = connectToDatabase(self.screen)
 
@@ -303,7 +303,6 @@ def printViewTableSubmenu(stdscr,con):
 
     # At least 1 table exists so print them
     else:
-        
         y = 8
         x = 6 
         # Print out each table name line by line up to 6 per screen
